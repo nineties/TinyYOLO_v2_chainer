@@ -10,8 +10,9 @@ cap = cv2.VideoCapture("input_video.mp4")
 
 while(True):
     ret, img = cap.read()
+    if not ret:
+        raise Exception('Failed to read a frame')
     objects = predict(model, img)
-    print(objects)
 
     for object in objects:
         cv2.rectangle(img, object[0][0:2], object[0][2:4], (0, 0, 255), 2)
