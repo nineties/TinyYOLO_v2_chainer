@@ -21,12 +21,12 @@ def darknetConv2D(in_channel, out_channel, bn=True):
         )
 
 # Convolution -> ReLU -> Pooling
-def CRP(c, h, stride=2, pad=0, pooling=True):
+def CRP(c, h, stride=2, pooling=True):
     # convolution -> leakyReLU -> MaxPooling
     h = c.b(c.n(c.c(h)))
     h = F.leaky_relu(h,slope=0.1)
     if pooling:
-        h = F.max_pooling_2d(h, ksize=2, stride=stride, pad=pad)
+        h = F.max_pooling_2d(h, ksize=2, stride=stride, pad=0)
     return h
 
 class TinyYOLO(Chain):
@@ -51,8 +51,8 @@ class TinyYOLO(Chain):
         h = CRP(self.c3, h)
         h = CRP(self.c4, h)
         h = CRP(self.c5, h)
-        h = CRP(self.c6, h, stride=1, pad=1)
-        h = h[:,:,1:14,1:14]
+        h = F.pad(h, ((0, 0), (0, 0), (0, 1), (0, 1)), mode='constant')
+        h = CRP(self.c6, h, stride=1)
         h = CRP(self.c7, h, pooling=False)
         h = CRP(self.c8, h, pooling=False)
         h = self.c9.b(self.c9.c(h)) # no leaky relu, no BN
