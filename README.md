@@ -1,4 +1,4 @@
-# YOLOtiny V2のChainerバージョン
+# TinyYOLO V2のChainerバージョン
 
 
 ## オブジェクト検出
@@ -24,10 +24,10 @@ python yolo_video.py
 
 
 ## darknetのweights変換
-すでに変換済みなので必要ないが、以下のコマンドで、darknetの重みパラメータのファイル`tiny-yolo-voc.weights`を読み込み、chainerのモデルファイル`YOLOtiny_v2.model`に変換できる。
+すでに変換済みなので必要ないが、以下のコマンドで、darknetの重みパラメータのファイル`tiny-yolo-voc.weights`を読み込み、chainerのモデルファイル`TinyYOLO_v2.model`に変換できる。
 
 ```
-python YOLOtiny.py
+python TinyYOLO.py
 ```
 
 ## 参考

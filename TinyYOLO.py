@@ -29,9 +29,9 @@ def CRP(c, h, stride=2, pooling=True):
         h = F.max_pooling_2d(h, ksize=2, stride=stride, pad=0)
     return h
 
-class YOLOtiny(Chain):
+class TinyYOLO(Chain):
     def __init__(self):
-        super(YOLOtiny, self).__init__(
+        super(TinyYOLO, self).__init__(
             c1 = darknetConv2D(3, 16),
             c2 = darknetConv2D(None, 32),
             c3 = darknetConv2D(None, 64),
@@ -111,9 +111,9 @@ class YOLOtiny(Chain):
         print(offset)
 
 if __name__ == '__main__':
-    c=YOLOtiny()
+    c=TinyYOLO()
     im=np.zeros((1, 3, 416, 416),dtype=np.float32) # ネットワークの入出力設定がNoneでも初回forward時にshape決まるので、とりあえず意味なく1回forwardする
     c.predict(im)
 
     c.loadCoef("tiny-yolo-voc.weights") # パラメータ代入
-    serializers.save_npz('YOLOtiny_v2.model', c)
+    serializers.save_npz('TinyYOLO_v2.model', c)

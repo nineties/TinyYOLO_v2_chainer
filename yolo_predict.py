@@ -1,10 +1,10 @@
-from YOLOtiny import *
+from TinyYOLO import *
 from predictor import *
 from lib.preprocess import *
 import cv2
 
-model = YOLOtiny()
-serializers.load_npz("YOLOtiny_v2.model", model)
+model = TinyYOLO()
+serializers.load_npz("TinyYOLO_v2.model", model)
 file_path = download_image()
 img = cv2.imread(file_path)
 objects = predict(model, img)
