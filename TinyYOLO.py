@@ -70,45 +70,27 @@ class TinyYOLO(Chain):
             in_ch = l[0]
             out_ch = l[1]
 
-            # load bias(Bias.bはout_chと同じサイズ)
-            txt = "self.c%d.b.b.data = dat[%d:%d]" % (i+1, offset, offset+out_ch)
-            offset+=out_ch
-            exec(txt)
-
-            # load bn(BatchNormalization.gammaはout_chと同じサイズ)
-            txt= "self.c%d.n.gamma.data = dat[%d:%d]" % (i+1, offset,offset+out_ch)
-            offset+=out_ch
-            exec(txt)
-
-            # (BatchNormalization.avg_meanはout_chと同じサイズ)
-            txt= "self.c%d.n.avg_mean = dat[%d:%d]" % (i+1, offset,offset+out_ch)
-            offset+=out_ch
-            exec(txt)
-
-            # (BatchNormalization.avg_varはout_chと同じサイズ)
-            txt= "self.c%d.n.avg_var = dat[%d:%d]" % (i+1, offset,offset+out_ch)
-            offset+=out_ch
-            exec(txt)
-
-            # load convolution weight(Convolution2D.Wは、outch * in_ch * フィルタサイズ。これを(out_ch, in_ch, 3, 3)にreshapeする)
-            txt= "self.c%d.c.W.data = dat[%d:%d].reshape(%d,%d,3,3)" % (i+1, offset, offset+(out_ch*in_ch*9), out_ch,in_ch)
-
-            offset+= (out_ch*in_ch*9)
-            exec(txt)
-            print(offset)
+            layer = getattr(self, 'c%d' % (i+1))
+            layer.b.b.data = dat[offset: offset+out_ch] # Bias.b
+            offset += out_ch
+            layer.n.gamma.data = dat[offset:offset+out_ch] # BatchNormalization.gamma
+            offset += out_ch
+            layer.n.avg_mean = dat[offset:offset+out_ch] # BatchNormalization.avg_mean
+            offset +=out_ch
+            layer.n.avg_var = dat[offset:offset+out_ch] # BatchNormalization.avg_var
+            offset +=out_ch
+            layer.c.W.data = dat[offset:offset+(out_ch*in_ch*9)].reshape(out_ch, in_ch, 3, 3)    # Convolution2D.W
+            offset += out_ch*in_ch*9
 
         # load last convolution weight(BiasとConvolution2Dのみロードする)
         in_ch = 1024
         out_ch = 125
+        self.c9.b.b.data = dat[offset:offset+out_ch]
+        offset += out_ch
+        self.c9.c.W.data = dat[offset:offset+out_ch*in_ch*1].reshape(out_ch, in_ch, 1, 1)
+        offset += out_ch*in_ch*1
 
-        txt= "self.c9.b.b.data = dat[%d:%d]" % ( offset, offset+out_ch)
-        offset+=out_ch
-        exec(txt)
-
-        txt= "self.c9.c.W.data = dat[%d:%d].reshape(%d,%d,1,1)" % ( offset, offset+out_ch*in_ch*1, out_ch,in_ch)
-        offset+=out_ch*in_ch*1
-        exec(txt)
-        print(offset)
+        print('done')
 
 if __name__ == '__main__':
     with chainer.using_config('train', False):
